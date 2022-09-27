@@ -1,7 +1,7 @@
 #! /bin/python
 # -*- coding:utf-8 -*-
 # Name: screen.py
-# Author: gghica
+# Author: gg
 # Version 1.0
 # Description: This program will return the image on the screen
 

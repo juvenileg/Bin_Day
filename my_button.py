@@ -1,6 +1,6 @@
 #! /bin/python
 # Name: .py
-# Author: gghica
+# Author: gg
 # Version 1.0
 # Description:
 

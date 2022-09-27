@@ -1,6 +1,6 @@
 #! /bin/python
 # Name: bin_calendar.py
-# Author: gghica
+# Author: gg
 # Version 1.0
 # Description: Strip calendar data
 # Calendar link: https://api.reading.gov.uk/api/collections/310012705
