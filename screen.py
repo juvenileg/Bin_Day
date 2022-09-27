@@ -49,13 +49,12 @@ def display_func(bin_c, date=''):
             HBlackimage = Image.open(os.path.join(picdir, f'{bin_c}.jpg'))  # wifi.jpg is 640x384 image
             HRYimage = Image.open(os.path.join(picdir, f'{bin_c}_r.jpg'))  # red image
             epd.display(epd.getbuffer(HBlackimage), epd.getbuffer(HRYimage))
-        time.sleep(10)  # This image will disappear after 10 seconds
         epd.sleep()
     return
 
 
-def main():
-    display_func('bin_r', 'Wednesday 28th of September')
+def main():  # This function is never used, test purpose only for when running the script
+    display_func('bin_r', 'Test')
 
 
 if __name__ == '__main__':
