@@ -15,6 +15,7 @@ import requests
 import re
 import sys
 import os
+from datetime import date, datetime
 from PIL import Image, ImageDraw, ImageFont
 import time
 import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO libraryhey
@@ -28,10 +29,10 @@ from waveshare_epd import epd7in5bc, epd7in5
 def cal_query():
 
     url = 'https://api.reading.gov.uk/api/collections/310012705'
+    page = ''
+    mynewdate = date.today()
 
     try:
-        page = ''
-        mynewdate = date.today()
         page_long = requests.get(url)
         page_long = str(page_long.content)
         page = page_long[:605]
@@ -42,6 +43,7 @@ def cal_query():
         mydate = re.search(r'\"date\":\s\"(\S+)', page)
         mydate = mydate.group(1)
         mynewdate = datetime.strptime(mydate, '%d/%m/%Y').date()
+        #print(mynewdate)
     except:
         display_func('reach')
     else:
@@ -115,6 +117,7 @@ def main():
             display_func('wifi')
             bindate = cal_query()
             GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 15 to be an input pin
+            GPIO.remove_event_detect(15)
             GPIO.add_event_detect(15, GPIO.RISING)
 
 if __name__ == '__main__':
