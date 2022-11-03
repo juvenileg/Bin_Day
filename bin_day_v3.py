@@ -15,7 +15,7 @@ import requests
 import re
 import sys
 import os
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from PIL import Image, ImageDraw, ImageFont
 import time
 import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO libraryhey
@@ -48,7 +48,7 @@ def cal_query():
         display_func('reach')
     else:
         try:
-            if date.today() > mynewdate:
+            if date.today()-timedelta(days=1) > mynewdate:
                 display_func('error')
             else:
                 # re-write the cronjob on a specific day
@@ -108,17 +108,36 @@ def main():
     bindate = cal_query()
     #print(bindate) #testing purposes
     while True:  # Run forever
-        if bindate < date.today():
+        if date.today()-timedelta(days=1) > bindate:
             bindate = cal_query()
         time.sleep(0.5) #trying to further keep the CPU down
         if GPIO.event_detected(15): # only on event, this keeps the CPU down
-            GPIO.cleanup()
-            #print('button pressed') #testing purposes
-            display_func('wifi')
-            bindate = cal_query()
-            GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 15 to be an input pin
+            time.sleep(1)
+            if GPIO.input(15) == GPIO.HIGH: # diffrent action if button is kept pressed for more than a sec
+                GPIO.remove_event_detect(15)
+                GPIO.cleanup()
+                #print('button pressed') #testing purposes
+                display_func('pic')
+                bindate = cal_query()
+                GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 15 to be an input pin
+                GPIO.add_event_detect(15, GPIO.RISING)
+            else:
+                GPIO.remove_event_detect(15)
+                GPIO.cleanup()
+                display_func('wifi')
+                bindate = cal_query()
+                GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 15 to be an input pin
+                GPIO.add_event_detect(15, GPIO.RISING)
+        now = datetime.now()
+        timp = now.strftime("%H:%M")
+        if timp == '06:00': #noticed the gpios stop responding properly after a few days so this is to reset daily
             GPIO.remove_event_detect(15)
+            GPIO.cleanup()
+            GPIO.setwarnings(False)
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 15 to be an input pin
             GPIO.add_event_detect(15, GPIO.RISING)
+            time.sleep(70)
 
 if __name__ == '__main__':
     main()
