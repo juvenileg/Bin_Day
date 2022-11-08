@@ -12,13 +12,12 @@
 
 
 import requests
-import re
 import sys
 import os
 from datetime import date, datetime, timedelta
 from PIL import Image, ImageDraw, ImageFont
 import time
-import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO libraryhey
+import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO library
 picdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'pic')
 libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
 if os.path.exists(libdir):
@@ -28,22 +27,14 @@ from waveshare_epd import epd7in5bc, epd7in5
 
 def cal_query():
 
-    url = 'https://api.reading.gov.uk/api/collections/310012705'
-    page = ''
+    url = 'https://api.reading.gov.uk/rbc/mycollections/40%20Windrush%20Way%20Reading,%20RG302NQ'
     mynewdate = date.today()
 
     try:
-        page_long = requests.get(url)
-        page_long = str(page_long.content)
-        page = page_long[:605]
-        # print(str(page.content)) #testing purposes
-        bindate = re.search(r'\bread_date\":\s\"(\w+\s\w+\s\w+\s\w+)', page)
-        bindate = bindate.group(1)
-
-        mydate = re.search(r'\"date\":\s\"(\S+)', page)
-        mydate = mydate.group(1)
-        mynewdate = datetime.strptime(mydate, '%d/%m/%Y').date()
-        #print(mynewdate)
+        page = requests.get(url)
+        data = page.json()
+        mynewdate = datetime.strptime(data['Collections'][0]['Date'], "%d/%m/%Y %H:%M:%S").date()
+        bindate = mynewdate.strftime("%A, %d %B")
     except:
         display_func('reach')
     else:
@@ -52,9 +43,9 @@ def cal_query():
                 display_func('error')
             else:
                 # re-write the cronjob on a specific day
-                if 'Recycling' in page:
+                if 'Recycling' in data['Collections'][1]['Service']:
                     display_func('bin_r', bindate)
-                elif 'Domestic' in page:
+                elif 'Domestic' in data['Collections'][0]['Service']:
                     display_func('bin', bindate)
                 else:
                     display_func('error')
