@@ -12,6 +12,7 @@
 
 
 import requests
+import re
 import sys
 import os
 from datetime import date, datetime, timedelta
@@ -27,6 +28,16 @@ from waveshare_epd import epd7in5bc, epd7in5
 
 def cal_query():
 
+    try:
+        url = f'http://numbersapi.com/{date.today().strftime("%m")}/{date.today().strftime("%d")}/date'
+        page = requests.get(url)
+        quote = page.text
+    except:
+        quote = 'No quote found'
+    nquote = []
+    nquote = re.findall(r'(.{1,55}\b)', quote)  # format the output so that it displays on the screen as it is long
+    quote = '\n'.join(nquote)
+
     url = 'https://api.reading.gov.uk/rbc/mycollections/40%20Windrush%20Way%20Reading,%20RG302NQ'
     mynewdate = date.today()
 
@@ -36,24 +47,24 @@ def cal_query():
         mynewdate = datetime.strptime(data['Collections'][0]['Date'], "%d/%m/%Y %H:%M:%S").date()
         bindate = mynewdate.strftime("%A, %d %B")
     except:
-        display_func('reach')
+        display_func('reach', quote)
     else:
         try:
             if date.today()-timedelta(days=1) > mynewdate:
-                display_func('error')
+                display_func('error', quote)
             else:
                 # re-write the cronjob on a specific day
                 if 'Recycling' in data['Collections'][1]['Service']:
-                    display_func('bin_r', bindate)
+                    display_func('bin_r', quote, bindate)
                 elif 'Domestic' in data['Collections'][0]['Service']:
-                    display_func('bin', bindate)
+                    display_func('bin', quote, bindate)
                 else:
-                    display_func('error')
+                    display_func('error', quote)
         except:
-            display_func('error')
+            display_func('error', quote)
     return mynewdate
 
-def display_func(bin_c, date=''): # mostly copied from epd_7in5_test.py examples
+def display_func(bin_c, quote='', date=''): # mostly copied from epd_7in5_test.py examples
     try:
         epd = epd7in5bc.EPD()
         epdb = epd7in5.EPD()
@@ -72,6 +83,7 @@ def display_func(bin_c, date=''): # mostly copied from epd_7in5_test.py examples
                 HBlackimage.paste(newimage, (0, 0))
                 drawblack = ImageDraw.Draw(HBlackimage)
                 drawblack.text((35, 178), f'{date}', font=font24, fill=0)
+                drawblack.text((10, 270), f'{quote}', font=font24, fill=0)
                 HRYimage = Image.open(os.path.join(picdir, f'{bin_c}_r.jpg'))  # red image
                 epd.display(epd.getbuffer(HBlackimage), epd.getbuffer(HRYimage))
             else:
@@ -81,6 +93,7 @@ def display_func(bin_c, date=''): # mostly copied from epd_7in5_test.py examples
                 HBlackimage.paste(newimage, (0, 0))
                 drawblack = ImageDraw.Draw(HBlackimage)
                 drawblack.text((35, 178), f'{date}', font=font24, fill=0)
+                drawblack.text((10, 270), f'{quote}', font=font24, fill=0)
                 epdb.display(epdb.getbuffer(HBlackimage))
         else:
             HBlackimage = Image.open(os.path.join(picdir, f'{bin_c}.jpg'))  # 640x384 B&W image
