@@ -1,6 +1,6 @@
 ## Bin_Day
 
-![logo](/library/log.jpg)
+![logo](/library/logo.jpg)
 
 ### Description: 
 Query the Reading website API, format date, display bin information, act on button pressed to display wifi qr code, keep button pressed to display a custom picture
