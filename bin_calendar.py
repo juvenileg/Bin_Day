@@ -2,9 +2,7 @@
 # Name: bin_calendar.py
 # Author: gg
 # Version 1.0
-# Description: Strip calendar data
-# Calendar link: https://api.reading.gov.uk/api/collections/310012705
-# Waveshare installation details: https://www.waveshare.com/wiki/7.5inch_e-Paper_HAT_Manual#Python_2
+# Description: This is for codetesting purposes
 
 import requests
 import re
@@ -13,25 +11,30 @@ from datetime import date, datetime
 
 def cal_query():
 
-    url = 'https://api.reading.gov.uk/api/collections/310012705'
-    page = ''
-    mynewdate = date.today()
-
     try:
-        page_long = requests.get(url)
-        page_long = str(page_long.content)
-        page = page_long[:605]
-        # print(str(page.content)) #testing purposes
-        bindate = re.search(r'\bread_date\":\s\"(\w+\s\w+\s\w+\s\w+)', page)
-        bindate = bindate.group(1)
+        url = f'http://numbersapi.com/{date.today().strftime("%m")}/{date.today().strftime("%d")}/date'
+        page = requests.get(url)
+        quote = page.text
+    except:
+        quote = 'No quote found'
 
-        mydate = re.search(r'\"date\":\s\"(\S+)', page)
-        mydate = mydate.group(1)
-        mynewdate = datetime.strptime(mydate, '%d/%m/%Y').date()
+    print(quote)
+    nquote = []
+    nquote = re.findall(r'(.{1,55}\b)', quote)
+    print(nquote)
+    quote = '\n'.join(nquote)
+    print(quote)
+    url = 'https://api.reading.gov.uk/rbc/mycollections/40%20Windrush%20Way%20Reading,%20RG302NQ'
+    mynewdate = date.today()
+    try:
+        page = requests.get(url)
+        data = page.json()
+        mynewdate = datetime.strptime(data['Collections'][0]['Date'], "%d/%m/%Y %H:%M:%S").date()
+        bindate = mynewdate.strftime("%A, %d %B")
+        print(bindate)
     except:
         print('error')
     else:
-        print(mynewdate)
         print(date.today())
         if date.today() < mynewdate:
             print('True')
@@ -39,15 +42,16 @@ def cal_query():
         if date.today() > mynewdate:
             print('error')
         else:
-            # re-write the cronjob on a specific day
-            if 'Recycling' in page:
+            if 'Recycling' in data['Collections'][1]['Service']:
                 print('recycle')
-            elif 'Domestic' in page:
+            elif 'Domestic' in data['Collections'][0]['Service']:
                 print('somestiv')
             else:
                 print('error')
     except:
         print('error')
+
+
 def main():  # This function is never used, test purpose only for when running the script
     cal_query()
 

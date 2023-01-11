@@ -47,11 +47,11 @@ def cal_query():
         mynewdate = datetime.strptime(data['Collections'][0]['Date'], "%d/%m/%Y %H:%M:%S").date()
         bindate = mynewdate.strftime("%A, %d %B")
     except:
-        display_func('reach', quote)
+        display_func('reach')
     else:
         try:
             if date.today()-timedelta(days=1) > mynewdate:
-                display_func('error', quote)
+                display_func('error')
             else:
                 # re-write the cronjob on a specific day
                 if 'Recycling' in data['Collections'][1]['Service']:
@@ -59,9 +59,9 @@ def cal_query():
                 elif 'Domestic' in data['Collections'][0]['Service']:
                     display_func('bin', quote, bindate)
                 else:
-                    display_func('error', quote)
+                    display_func('error')
         except:
-            display_func('error', quote)
+            display_func('error')
     return mynewdate
 
 def display_func(bin_c, quote='', date=''): # mostly copied from epd_7in5_test.py examples
