@@ -34,6 +34,6 @@ git clone https://github.com/juvenileg/Bin_Day.git .
 
 You will have to copy all the pictures in the library folder to ~/e-Paper/RaspberryPi_JetsonNano/python/pic
 
-You will also have to create a wifi.jpg file in the same library above as it is git-ignored since it can contain wifi passwords.
+You will also have to create a wifi.jpg and pic.jpg file in the same library above as it is git-ignored since it can contain wifi passwords or disclose personal information.
 
 You will have to clone the repo into ~/e-Paper/RaspberryPi_JetsonNano/python folder.
