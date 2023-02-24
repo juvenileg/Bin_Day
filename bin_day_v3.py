@@ -87,7 +87,6 @@ def display_func(bin_c, quote='', date=''): # mostly copied from epd_7in5_test.p
                 HRYimage = Image.open(os.path.join(picdir, f'{bin_c}_r.jpg'))  # red image
                 epd.display(epd.getbuffer(HBlackimage), epd.getbuffer(HRYimage))
                 try:
-                    HBlackimage.paste(HRYimage, (0, 0))
                     HBlackimage = HBlackimage.save("image.jpg")
                 except:
                     pass
