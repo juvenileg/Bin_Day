@@ -86,6 +86,11 @@ def display_func(bin_c, quote='', date=''): # mostly copied from epd_7in5_test.p
                 drawblack.text((10, 270), f'{quote}', font=font24, fill=0)
                 HRYimage = Image.open(os.path.join(picdir, f'{bin_c}_r.jpg'))  # red image
                 epd.display(epd.getbuffer(HBlackimage), epd.getbuffer(HRYimage))
+                try:
+                    HBlackimage.paste(HRYimage, (0, 0))
+                    HBlackimage = HBlackimage.save("image.jpg")
+                except:
+                    pass
             else:
                 font24 = ImageFont.truetype(os.path.join(picdir, 'Font.ttc'), 24)
                 HBlackimage = Image.new('1', (640, 384), 255)  # 640x384 image
@@ -95,6 +100,10 @@ def display_func(bin_c, quote='', date=''): # mostly copied from epd_7in5_test.p
                 drawblack.text((35, 178), f'{date}', font=font24, fill=0)
                 drawblack.text((10, 270), f'{quote}', font=font24, fill=0)
                 epdb.display(epdb.getbuffer(HBlackimage))
+                try:
+                    HBlackimage = HBlackimage.save("image.jpg")
+                except:
+                    pass
         else:
             HBlackimage = Image.open(os.path.join(picdir, f'{bin_c}.jpg'))  # 640x384 B&W image
             epdb.display(epdb.getbuffer(HBlackimage))
