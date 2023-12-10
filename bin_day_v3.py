@@ -68,9 +68,8 @@ def display_func(bin_c, quote='', date=''): # mostly copied from epd_7in5_test.p
     try:
         epd = epd7in5bc.EPD()
         epdb = epd7in5.EPD()
-        epd.init()
-        epdb.init()
-        # epd.Clear()
+        #epd.init() #initiated in main now
+        #epdb.init()
     except KeyboardInterrupt:
         epd7in5bc.epdconfig.module_exit()
         exit()
@@ -87,7 +86,9 @@ def display_func(bin_c, quote='', date=''): # mostly copied from epd_7in5_test.p
                 HRYimage = Image.open(os.path.join(picdir, f'{bin_c}_r.jpg'))  # red image
                 epd.display(epd.getbuffer(HBlackimage), epd.getbuffer(HRYimage))
                 try:
-                    HBlackimage = HBlackimage.save("image.jpg")
+                    inter = Image.alpha_composite(HBlackimage, HRYimage)
+                    inter = inter.save("image.jpg")
+                    #os.system('rsync -e "ssh -i /home/pi/.ssh/homesrv" /home/pi/e-Paper/RaspberryPi_JetsonNano/python/examples/image.jpg  juve@192.168.2.60:/media/ext/homeassistant/www/')
                 except:
                     pass
             else:
@@ -101,12 +102,13 @@ def display_func(bin_c, quote='', date=''): # mostly copied from epd_7in5_test.p
                 epdb.display(epdb.getbuffer(HBlackimage))
                 try:
                     HBlackimage = HBlackimage.save("image.jpg")
+                    #os.system('rsync -e "ssh -i /home/pi/.ssh/homesrv" /home/pi/e-Paper/RaspberryPi_JetsonNano/python/examples/image.jpg  juve@192.168.2.60:/media/ext/homeassistant/www/')
                 except:
                     pass
         else:
             HBlackimage = Image.open(os.path.join(picdir, f'{bin_c}.jpg'))  # 640x384 B&W image
             epdb.display(epdb.getbuffer(HBlackimage))
-        epd.sleep()
+        #epd.sleep() #removed as it stopped working - https://github.com/waveshareteam/e-Paper/issues/315
     return
 
 
@@ -116,6 +118,11 @@ def main():
     GPIO.setmode(GPIO.BCM) # Use BCM pin numbering, that is what waveshare uses, so we have no conflicts
     GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 15 to be an input pin
     GPIO.add_event_detect(15, GPIO.RISING)
+
+    epd = epd7in5bc.EPD()
+    epdb = epd7in5.EPD()
+    epd.init() #initiated in main now
+    epdb.init()
 
     bindate = cal_query()
     #print(bindate) #testing purposes
@@ -127,7 +134,7 @@ def main():
             time.sleep(1)
             if GPIO.input(15) == GPIO.HIGH: # diffrent action if button is kept pressed for more than a sec
                 GPIO.remove_event_detect(15)
-                GPIO.cleanup()
+                GPIO.cleanup(15)
                 #print('button pressed') #testing purposes
                 display_func('pic')
                 bindate = cal_query()
@@ -135,7 +142,7 @@ def main():
                 GPIO.add_event_detect(15, GPIO.RISING)
             else:
                 GPIO.remove_event_detect(15)
-                GPIO.cleanup()
+                GPIO.cleanup(15)
                 display_func('wifi')
                 bindate = cal_query()
                 GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 15 to be an input pin
@@ -144,7 +151,7 @@ def main():
         timp = now.strftime("%H:%M")
         if timp == '06:00': #noticed the gpios stop responding properly after a few days so this is to reset daily
             GPIO.remove_event_detect(15)
-            GPIO.cleanup()
+            GPIO.cleanup(15)
             GPIO.setwarnings(False)
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 15 to be an input pin
