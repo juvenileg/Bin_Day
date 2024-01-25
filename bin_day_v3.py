@@ -3,7 +3,7 @@
 # Author: gg
 # Version 3.0
 # Description: Query the Reading website API, format date, display bin information, act on button pressed to display wifi
-# Calendar link: https://api.reading.gov.uk/api/collections/310012705
+# Calendar link: https://api.reading.gov.uk
 # Waveshare installation details: https://www.waveshare.com/wiki/7.5inch_e-Paper_HAT_Manual#Python_2
 # Running on a Raspberry Pi Zero W + 8gb SD Card + 7.5inch E-Ink Display HAT 640x384 + Universal e-Paper Raw Panel Driver HAT + Mini Illuminated Momentary Pushbutton + 1kohm rezistor
 # Eink: https://www.aliexpress.com/item/1005002297292956.html?spm=a2g0o.order_list.0.0.72991802a1h7yW
@@ -13,6 +13,7 @@
 
 import requests
 import re
+import var
 import sys
 import os
 from datetime import date, datetime, timedelta
@@ -38,7 +39,7 @@ def cal_query():
     nquote = re.findall(r'(.{1,55}\b)', quote)  # format the output so that it displays on the screen as it is long
     quote = '\n'.join(nquote)
 
-    url = 'https://api.reading.gov.uk/rbc/mycollections/40%20Windrush%20Way%20Reading,%20RG302NQ'
+    url = f'https://api.reading.gov.uk/rbc/mycollections/{var.address}'
     mynewdate = date.today()
 
     try:

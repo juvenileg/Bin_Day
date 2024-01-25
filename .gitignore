@@ -2,3 +2,5 @@
 wifi.jpg
 # Ignore personal information jpg
 pic.jpg
+# Ignore variable files
+var*.*
